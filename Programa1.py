@@ -194,9 +194,9 @@ def consultarCliente(con):
         print("La informacion del id del cliente es: ",IdCliente)
         print("La informacion del nombre del cliente es: ",nomCliente)      
     print(row)        
-
     #actualizamos el producto en la base de datos
-def consultarProducto(con):
+    
+    def consultarProducto(con):
     cursorObj=con.cursor()
     #crear el primer producto
     noIdProd=input("Ingrese el numero de producto: ")
@@ -221,6 +221,7 @@ def consultarProducto(con):
     #   print("La identificacion del producto es:",idProd)
     #   print("El nombre del producto es:",nomProd)
     #print("La fila",row)
+
 def borrarProducto(con):
     cursorObj=con.cursor()
     noIdProd=input("Ingrese el numero de producto: ")
@@ -228,6 +229,7 @@ def borrarProducto(con):
     print("la cadena que se ejecuta es: ",borrarProd)
     cursorObj.execute(borrarProd)
     con.commit()
+
 def borrarTablaProducto(con):
     cursorObj=con.cursor()
     #recorremos la base de datos con el objeto de conexion
