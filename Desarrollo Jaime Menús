@@ -1,0 +1,250 @@
+import sqlite3 #Importamos SQLite
+from sqlite3 import Error #De SQLite se importa Error
+
+def conexionBD():
+    try:
+        con = sqlite3.connect('BDEjam.db')
+        #establece el objeto conexion y crea contenedor de la BD
+        return con
+    except Error:
+        print(Error)
+def cerrarConexionBD(con):
+    con.close()
+    #cierra la conexion con la BD 
+
+#MODULO PRODUCTOS
+
+def crearTablaProductos(con):
+    try:
+        cursorObj = con.cursor()
+        #recorre la BD con el objeto conexion
+        crearTablaProd='''CREATE TABLE IF NOT EXISTS productos(
+        noIdProducto interger NOT NULL,
+        nomProducto text NOT NULL,
+        medida float NOT NULL,
+        fecVencimiento date NOT NULL,
+        precioCpra float NOT NULL,
+        precioVta float NOT NULL,
+        PRIMARY KEY(noIdProducto))'''
+        cursorObj.execute(crearTablaProd)
+        #Se crea la tabla productos y se ejecuta
+        con.commit()
+        #Se asegura la persistencia
+    except Error:
+        print(Error)
+
+        
+def leerProducto(con):
+    noIdProducto = input('Identificación del producto:')
+    noIdProducto = noIdProducto.rjust(12)
+    nomProducto = input('Nombre del producto:')
+    nomProducto = nomProducto.rjust(12)
+    medida = input('Medidas del producto: ')
+    medida = medida.rjust(12)
+    fecVencimiento = input('Fecha de vencimiento (AAAA-MM-DD): ')
+    fecVencimiento = fecVencimiento.rjust(12)
+    precioCpra = input('Precio de compra: ')
+    precioCpra = precioCpra.rjust(12)
+    precioVta = input('Precio de venta: ')
+    precioVta = precioVta.rjust(12)
+    # Devolvemos la información del producto como una tupla
+    miproducto = (noIdProducto, nomProducto, medida, fecVencimiento, precioCpra, precioVta)
+    return miproducto
+
+
+def crearProducto(con,miproducto):
+    try:
+        cursorObj = con.cursor()
+        #se crea el objeto cursor
+        crearProd='''INSERT INTO productos(noIdProducto,nomProducto,medida,fecVencimiento,precioCpra,precioVta)
+        VALUES(?,?,?,?,?,?)'''
+        cursorObj.execute(crearProd,miproducto)
+        #Se crea la tabla productos y se ejecuta
+        con.commit()
+        #Se asegura la persistencia
+        print('Producto creado con exito')
+    except Error:
+        print(Error)
+
+def actualizarProducto(con):
+    try:
+        cursorObj=con.cursor()
+        #se crea el objeto cursor
+        idProd=input("Ingrese el id del producto que quiere cambiar: ")
+        parametroProd=input("Ingrese el parametro que quiera cambiar: ")
+        actualizacion=input("Ingrese nuevo valor: ")
+        #ingresa el producto a actualizar
+        actuProd='UPDATE productos SET '+parametroProd+'="'+actualizacion+'" WHERE noIdProducto='+idProd
+        actuProd=actuProd.rjust(12)
+        print("la cadena que se ejecuta es: ",actuProd)
+        cursorObj.execute(actuProd)
+        #se ejecuta la actualizacion
+        con.commit()
+        #se asegura la persistencia de la actualizacion
+        print("Producto actualizado con exito")
+    except Error:
+        print(Error)
+
+    #MODULO CLIENTES
+        #insetar codigo: tabla, creacion, actulización y consulta
+
+    #MODULO VENTAS
+        #insetar codigo: tabla facturas, creacion venta y actualización/modificación venta
+
+    #PRESENTACION Y MENÚS
+
+def presentacion():
+    print("\n\n\n***************************************************************")
+    print("\n                          Sistema de Gestión\n\n                       Tienda de Barrio LA MEJOR")
+    print("\n***************************************************************")
+    print("\nEste sistema permite gestionar ventas, generar facturas,")
+    print("gestionar clientes y productos.")
+    input("\nPresione Enter para continuar...")
+    # Presentación del sistema
+
+def menu_principal():
+    # Menú principal del sistema
+    while True:
+        print("\nMenú Principal:")
+        print("\n 1. Gestionar Ventas")
+        print(" 2. Generar Facturas")
+        print(" 3. Gestionar Clientes")
+        print(" 4. Gestionar Productos")
+        print(" 5. Salir")
+        
+        opcion = input("\nSeleccione una opción (1/2/3/4/5): ")
+        
+        if opcion == "1":
+            # Lógica para gestionar ventas
+            menu_ventas()
+        elif opcion == "2":
+            # Lógica para generar facturas
+            menu_facturas()
+        elif opcion == "3":
+            # Lógica para gestionar clientes
+            menu_clientes()
+        elif opcion == "4":
+            # Lógica para gestionar productos
+            menu_productos()
+        elif opcion == "5":
+            print("\nGracias por usar el sistema. ¡Hasta Pronto!")
+            break
+        else:
+            print("\nOpción no válida. Por favor, seleccione una opción válida.")
+            input("\nPresione Enter para continuar...")
+
+def menu_ventas():
+    while True:
+        print("\nMenú Ventas:")
+        print("\n 1. Iniciar Venta")
+        print(" 2. Modificar Venta")
+        print(" 3. Volver al Menú Principal")
+        
+        opcion = input("\nSeleccione una opción (1/2/3): ")
+        
+        if opcion == "1":
+            # Lógica para iniciar una venta
+            print("Iniciar Venta")
+        elif opcion == "2":
+            # Lógica para modificar una venta
+            print("Modificar Venta")
+        elif opcion == "3":
+            print("\nVolviendo al Menú Principal...")
+            menu_principal()
+            break
+        else:
+            print("\nOpción no válida. Por favor, seleccione una opción válida.")
+            input("\nPresione Enter para continuar...")
+
+def menu_facturas():
+    while True:
+        print("\nMenú Facturación:")
+        print("\n 1. Imprimir Factura")
+        print(" 2. Enviar Factura vía Correo Electrónico")
+        print(" 3. Volver al Menú Principal")
+        
+        opcion = input("\nSeleccione una opción (1/2/3): ")
+        
+        if opcion == "1":
+            # Lógica para imprimir una factura
+            print("Imprimir Factura")
+        elif opcion == "2":
+            print("\nEstamos trabajando en la opción de enviar factura por correo electrónico.")
+            input("\nPresione Enter para volver al Menú Facturación...")
+        elif opcion == "3":
+            print("\nVolviendo al Menú Principal...")
+            menu_principal()
+            break
+        else:
+            print("\nOpción no válida. Por favor, seleccione una opción válida.")
+            input("\nPresione Enter para continuar...")
+
+def menu_clientes():
+    while True:
+        print("\nMenú de Clientes:")
+        print("\n 1. Crear Cliente")
+        print(" 2. Actualizar Cliente")
+        print(" 3. Consultar Cliente")
+        print(" 4. Volver al Menú Principal")
+        
+        opcion = input("\nSeleccione una opción (1/2/3/4): ")
+        
+        if opcion == "1":
+            # Lógica para crear un cliente
+            print("Crear Cliente")
+        elif opcion == "2":
+            # Lógica para actualizar un cliente
+            print("Actualizar Cliente")
+        elif opcion == "3":
+            # Lógica para consultar un cliente
+            print("Consultar Cliente")
+        elif opcion == "4":
+            print("\nVolviendo al Menú Principal...")
+            menu_principal()
+            break
+        else:
+            print("\nOpción no válida. Por favor, seleccione una opción válida.")
+            input("\nPresione Enter para continuar...")   
+
+def menu_productos():
+    while True:
+        print("\nMenú de Productos:")
+        print("\n 1. Crear Producto")
+        print(" 2. Actualizar Producto")
+        print(" 3. Consultar Producto")
+        print(" 4. Volver al Menú Principal")
+        
+        opcion = input("\nSeleccione una opción (1/2/3/4): ")
+        
+        if opcion == "1":
+            # Lógica para crear un producto
+            print("Crear Producto")
+        elif opcion == "2":
+            # Lógica para actualizar un producto
+            print("Actualizar Producto")
+        elif opcion == "3":
+            # Lógica para consultar un producto
+            print("Consultar Producto")
+        elif opcion == "4":
+            print("\nVolviendo al Menú Principal...")
+            menu_principal()
+            break
+        else:
+            print("\nOpción no válida. Por favor, seleccione una opción válida.")
+            input("\nPresione Enter para continuar...")
+
+
+#PROGRAMA PRINCIPAL
+
+def main():
+    con=conexionBD()
+    crearTablaProductos(con)
+    presentacion()
+    menu_principal()
+    menu_ventas()
+    menu_facturas()
+    menu_clientes()
+    menu_productos()   
+    cerrarConexionBD(con)
+
+main() #Ejecuta el programa principal
