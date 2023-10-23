@@ -9,9 +9,11 @@ def conexionBD():
         return con
     except Error:
         print(Error)
+
 def cerrarConexionBD(con):
     con.close()
     #Se cierra la conexion con la base de datos   
+
 def crearTablaProducto(con):
     cursorObj=con.cursor()
     #Se crea el objeto cursor
@@ -27,6 +29,7 @@ def crearTablaProducto(con):
     #Se crea la tabla productos y se ejecuta
     con.commit()
     #Se asegura la persistencia
+
 def crearTablaCliente(con):
     cursorObj=con.cursor()
     #Se crea el objeto cursor
@@ -42,6 +45,7 @@ def crearTablaCliente(con):
     #Se crea la tabla clientes y se ejecuta
     con.commit()
     #Se asegura la persistencia
+
 def leerProducto(con):
     noIdProducto=input('Identificacion del producto:')
     noIdProducto=noIdProducto.rjust(12)
@@ -57,6 +61,7 @@ def leerProducto(con):
     precioVta=precioVta.rjust(12)
     producto=(noIdProducto,nomProducto,medida,fecVencimiento,precioCpra,precioVta)
     return producto
+
 def leerCliente(con):
     noIdCliente=input('Identificacion del cliente:')
     noIdCliente=noIdCliente.rjust(12)
@@ -72,6 +77,7 @@ def leerCliente(con):
     emailCliente=emailCliente.rjust(12)
     cliente=(noIdCliente,nomCliente,apellCliente,direccion,telefono,emailCliente)
     return cliente
+
 def crearProducto(con,miproducto):
     cursorObj=con.cursor()
     #crear el primer producto
@@ -79,6 +85,7 @@ def crearProducto(con,miproducto):
     print("la cadena que se ejecuta es: ",crearProd)
     cursorObj.execute(crearProd,miproducto)
     con.commit()
+
 def crearCliente(con,miCliente):
     cursorObj=con.cursor()
     #crear el primer producto
@@ -86,6 +93,7 @@ def crearCliente(con,miCliente):
     print("la cadena que se ejecuta es: ",crearClie)
     cursorObj.execute(crearClie,miCliente)
     con.commit()
+
 def actualizarProducto(con):
     cursorObj=con.cursor()
     idProd=input("Ingrese el id del producto que quiere cambiar: ")
@@ -98,6 +106,7 @@ def actualizarProducto(con):
     cursorObj.execute(actuProd)
     con.commit()
     #actualizamos el producto en la base de datos
+
 def actualizarCliente(con):
     cursorObj=con.cursor()
     #actualizar el primer producto
@@ -105,6 +114,87 @@ def actualizarCliente(con):
     print("la cadena que se ejecuta es: ",actuClie)
     cursorObj.execute(actuClie)
     con.commit()
+
+def actualizarnoIdCliente(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoVa=input(" Nuevo ID cliente: ")
+    acidCl='UPDATE clientes SET noIdCliente="'+nuevoVa+'" WHERE noIdCliente="'+valor+'"'
+    acidCl=acidCl.rjust(12)
+    cursorObj.execute(acidCl)
+    con.commit()
+    print ("            ID Cliente Actualizado")
+    return(valor)
+    #dfghgfdsdfghgfd
+
+def actualizarnomCliente(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoEv=input(" Nuevo Nombre del cliente: ")
+    acnomCl='UPDATE clientes SET nomCliente="'+nuevoEv+'" WHERE noIdCliente="'+valor+'"'
+    acnomCl=acnomCl.rjust(12)
+    cursorObj.execute(acnomCl)
+    con.commit()
+    print ("            Nombre del cliente Actualizado")
+
+def actualizarapeCliente(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoEv=input(" Nuevo Apellido del cliente")
+    acApCl='UPDATE clientes SET apeCliente="'+nuevoEv+'" WHERE noIdCliente="'+valor+'"'
+    acApCl=acApCl.rjust(12)
+    cursorObj.execute(acApCl)
+    con.commit()
+    print ("            Apellido Cliente Actualizado")
+
+def actualizardireccion(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoEv=input(" Nueva Direccion del Cliente: ")
+    direc='UPDATE clientes SET direccion="'+nuevoEv+'" WHERE noIdCliente="'+valor+'"'
+    cursorObj.execute(direc)
+    con.commit()
+    print ("      Direccion del cliente Actualizado")
+
+def actualizartelefono(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoEv=input(" Nuevo telefono Cliente: ")
+    telefono='UPDATE clientes SET telefono="'+nuevoEv+'" WHERE noIdCliente="'+valor+'"'
+    cursorObj.execute(telefono)
+    con.commit()
+    print ("            telefono Cliente Actualizado")
+
+def actualizaremailCliente(con):
+    cursorObj=con.cursor()
+    valor=input("no Id cliente: ")
+    filas=cursorObj.fetchall()
+    nuevoEv=input(" Nuevo emailCliente: ")
+    emailCl='UPDATE clientes SET emailCliente="'+nuevoEv+'" WHERE noIdCliente="'+valor+'"'
+    cursorObj.execute(emailCl)
+    con.commit()
+    print ("            emailCliente Actualizado")
+
+def consultarCliente(con):
+    cursorObj=con.cursor()
+    valor=input("noIdcliente: ")
+    cad='SELECT  * FROM clientes WHERE noIdCliente="'+valor+'"'
+    print("La cadena es:  ",cad)
+    cursorObj.execute(cad)#Consultar inf en la tabla atleta
+    filas=cursorObj.fetchall()
+    print ("El tipo de datos de filas es: ", type(filas))
+    for row in filas:
+        IdCliente=row[0]
+        nomCliente=row[1]
+        print("La informacion del id del cliente es: ",IdCliente)
+        print("La informacion del nombre del cliente es: ",nomCliente)      
+    print(row)        
+
     #actualizamos el producto en la base de datos
 def consultarProducto(con):
     cursorObj=con.cursor()
@@ -153,8 +243,14 @@ def main():
     #crearProducto(miCon,productoLeido)
     #clienteLeido=leerCliente(miCon)
     #crearCliente(miCon,clienteLeido)
-
-    actualizarProducto(miCon)
+    #actualizarnoIdCliente(miCon)
+    #actualizarnomCliente(miCon)
+    #actualizarapeCliente(miCon)
+    #actualizardireccion(miCon)
+    #actualizartelefono(miCon)
+    #actualizaremailCliente(miCon)
+    #consultarCliente(miCon)
+    #actualizarProducto(miCon)
     #consultarProducto(miCon)
     #borrarProducto(miCon)
     #borrarTablaProducto(miCon)
