@@ -238,22 +238,21 @@ def consultarCliente(con):
     #actualizamos el producto en la base de datos
 
 def crearTablaVentas(con):
-    cursorObj=con.cursor()
-    #Se crea el objeto cursor
-    crearTablaVen='''CREATE TABLE IF NOT EXISTS ventas(
-        noIdCliente interger NOT NULL,
-        nomCliente text NOT NULL,
-        apellCliente text NOT NULL,
-        direccion text NOT NULL,
-        telefono interger NOT NULL,
-        emailCliente text NOT NULL,
-        PRIMARY KEY(noIdCliente))'''
-    cursorObj.execute(crearTablaVen)
-    #Se crea la tabla clientes y se ejecuta
+    cursorObj = con.cursor()
+    # Se crea el objeto cursor
+    crearTablaVentas = '''CREATE TABLE IF NOT EXISTS ventas(
+        noFactura INTEGER PRIMARY KEY AUTOINCREMENT,
+        noIdCliente INTEGER NOT NULL,
+        noIdProducto INTEGER NOT NULL,
+        cantidad INTEGER NOT NULL,
+        precioTotal REAL NOT NULL,
+        FOREIGN KEY (noIdCliente) REFERENCES clientes (noIdCliente),
+        FOREIGN KEY (noIdProducto) REFERENCES productos (noIdProducto))'''
+    cursorObj.execute(crearTablaVentas)
+    # Se crea la tabla ventas y se ejecuta
     con.commit()
-    #Se asegura la persistencia
 
-def crearCliente(con,miCliente):
+def crearVenta(con,miCliente):
     cursorObj=con.cursor()
     #crear el primer producto
     crearClie='INSERT INTO clientes VALUES(?,?,?,?,?,?)'
@@ -261,26 +260,122 @@ def crearCliente(con,miCliente):
     cursorObj.execute(crearClie,miCliente)
     con.commit()
 
-def leerCliente(con):
-    noIdCliente=input('Identificacion del cliente:')
-    noIdCliente=noIdCliente.rjust(12)
-    nomCliente=input('Nombre del cliente:')
-    nomCliente=nomCliente.rjust(12)
-    apellCliente=input('Apellido del cliente: ')
-    apellCliente=apellCliente.rjust(12)
-    direccion= input('Direccion del cliente: ')
-    direccion=direccion.rjust(12)
-    telefono=input('Telefono del cliente')
-    telefono=telefono.rjust(12)
-    emailCliente=input('Correo electronico del cliente: ')
-    emailCliente=emailCliente.rjust(12)
-    cliente=(noIdCliente,nomCliente,apellCliente,direccion,telefono,emailCliente)
-    return cliente
+def venderProducto(con):
+    cursorObj = con.cursor()
+    
+    # Solicitar información de la venta
+    noIdCliente = input("Identificación del cliente: ")
+    noIdProducto = input("Identificación del producto: ")
+    cantidad = int(input("Cantidad a vender: "))
+    
+    # Consultar el producto en la base de datos
+    cursorObj.execute('SELECT nomProducto, precioVta FROM productos WHERE noIdProducto = ?', (noIdProducto,))
+    producto = cursorObj.fetchone()
+    
+    if producto:
+        nomProducto, precioVta = producto
+        precioTotal = precioVta * cantidad
+        
+        # Registrar la venta en la base de datos
+        cursorObj.execute
+        ('INSERT INTO ventas (noIdCliente, noIdProducto, cantidad, precioTotal))
+        (VALUES (?, ?, ?, ?)', (noIdCliente, noIdProducto, cantidad, precioTotal)
+        con.commit()
+        
+        print("Venta realizada con éxito.")
+    else:
+        print("Producto no encontrado en la base de datos.")
 
+def quitarProducto(con):
+    cursorObj = con.cursor()
+    
+    # Solicitar información de la devolución
+    noIdCliente = input("Identificación del cliente: ")
+    noIdProducto = input("Identificación del producto: ")
+    cantidad = int(input("Cantidad a devolver: "))
+    
+    # Consultar la venta en la base de datos
+    cursorObj.execute('SELECT cantidad, precioTotal FROM ventas WHERE noIdCliente = ? AND noIdProducto = ?',
+                      (noIdCliente, noIdProducto))
+    venta = cursorObj.fetchone()
+    
+    if venta:
+        ventaCantidad, precioTotal = venta
+        if cantidad <= ventaCantidad:
+            nuevoPrecioTotal = precioTotal * (1 - cantidad / ventaCantidad)
+            cursorObj.execute('UPDATE ventas SET cantidad = ?, precioTotal = ? WHERE noIdCliente = ? AND noIdProducto = ?',
+                              (ventaCantidad - cantidad, nuevoPrecioTotal, noIdCliente, noIdProducto))
+            con.commit()
+            print("Devolución realizada con éxito.")
+        else:
+            print("La cantidad a devolver es mayor que la cantidad vendida.")
+    else:
+        print("Venta no encontrada en la base de datos.")
+
+def imprimirFactura(con, numFactura):
+    cursorObj = con.cursor()
+    
+    # Obtener información de la factura
+    cursorObj.execute('SELECT ventas.noIdCliente,clientes.nomCliente, clientes.apellCliente, clientes.direccion, clientes.telefono, ventas.noIdProducto, productos.nomProducto, ventas.cantidad, productos.precioVta, ventas.precioTotal FROM ventas JOIN clientes ON ventas.noIdCliente = clientes.noIdCliente JOIN productos ON ventas.noIdProducto = productos.noIdProducto WHERE ventas.noFactura = ?',
+                      (numFactura,))
+    facturaInfo = cursorObj.fetchall()
+    
+    if facturaInfo:
+        # Imprimir encabezado
+        noIdCliente, nomCliente, apellCliente, direccion, telefono = facturaInfo[0][:5]
+        print(f"Número de Factura: {numFactura}")
+        print(f"Nombre del Cliente: {nomCliente} {apellCliente}")
+        print(f"Dirección del Cliente: {direccion}")
+        print(f"Teléfono del Cliente: {telefono}")
+        
+        # Imprimir cuerpo de la factura
+        print("\nCuerpo de la Factura:")
+        totalFactura = 0
+        for row in facturaInfo:
+            noIdProducto, nomProducto, cantidad, precioUnitario, precioTotal = row[5:]
+            print(f"{nomProducto} - Cantidad: {cantidad} - Precio Unitario: {precioUnitario} - Precio Total: {precioTotal}")
+            totalFactura += precioTotal
+        
+        # Imprimir pie final
+        print("\nTotal a pagar: ", totalFactura)
+    else:
+        print(f"No se encontró la factura con el número {numFactura}.")
+
+# Modifica tu función main para incluir la venta y la impresión de facturas
+
+def main():
+    miCon = conexionBD()
+    crearTablaProducto(miCon)
+    crearTablaCliente(miCon)
+    crearTablaVentas(miCon)  # Agrega una tabla 'ventas' para registrar las ventas
+    numFactura = 1  # Número de factura (puedes implementar la generación automática)
+    
+    while True:
+        print("\nMenú:")
+        print("1. Vender producto")
+        print("2. Quitar producto (devolución)")
+        print("3. Imprimir factura")
+        print("4. Salir")
+        
+        opcion = input("Selecciona una opción: ")
+        
+        if opcion == "1":
+            venderProducto(miCon)
+        elif opcion == "2":
+            quitarProducto(miCon)
+        elif opcion == "3":
+            numFactura = int(input("Ingrese el número de factura a imprimir: "))
+            imprimirFactura(miCon, numFactura)
+        elif opcion == "4":
+            break
+        else:
+            print("Opción no válida.")
+    
 def main():
     miCon=conexionBD()
     crearTablaProducto(miCon)
     crearTablaCliente(miCon)
+    crearTablaVentas(miCon)
     #productoLeido=leerProducto(miCon)
     #crearProducto(miCon,productoLeido)
     #actualizarProducto(miCon)
