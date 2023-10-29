@@ -237,6 +237,45 @@ def consultarCliente(con):
     print(row)        
     #actualizamos el producto en la base de datos
 
+def crearTablaVentas(con):
+    cursorObj=con.cursor()
+    #Se crea el objeto cursor
+    crearTablaVen='''CREATE TABLE IF NOT EXISTS ventas(
+        noIdCliente interger NOT NULL,
+        nomCliente text NOT NULL,
+        apellCliente text NOT NULL,
+        direccion text NOT NULL,
+        telefono interger NOT NULL,
+        emailCliente text NOT NULL,
+        PRIMARY KEY(noIdCliente))'''
+    cursorObj.execute(crearTablaVen)
+    #Se crea la tabla clientes y se ejecuta
+    con.commit()
+    #Se asegura la persistencia
+
+def crearCliente(con,miCliente):
+    cursorObj=con.cursor()
+    #crear el primer producto
+    crearClie='INSERT INTO clientes VALUES(?,?,?,?,?,?)'
+    print("la cadena que se ejecuta es: ",crearClie)
+    cursorObj.execute(crearClie,miCliente)
+    con.commit()
+
+def leerCliente(con):
+    noIdCliente=input('Identificacion del cliente:')
+    noIdCliente=noIdCliente.rjust(12)
+    nomCliente=input('Nombre del cliente:')
+    nomCliente=nomCliente.rjust(12)
+    apellCliente=input('Apellido del cliente: ')
+    apellCliente=apellCliente.rjust(12)
+    direccion= input('Direccion del cliente: ')
+    direccion=direccion.rjust(12)
+    telefono=input('Telefono del cliente')
+    telefono=telefono.rjust(12)
+    emailCliente=input('Correo electronico del cliente: ')
+    emailCliente=emailCliente.rjust(12)
+    cliente=(noIdCliente,nomCliente,apellCliente,direccion,telefono,emailCliente)
+    return cliente
 
 def main():
     miCon=conexionBD()
