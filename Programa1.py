@@ -316,7 +316,7 @@ def imprimirFactura(con, numFactura):
     cursorObj = con.cursor()
     
     # Obtener información de la factura
-    cursorObj.execute('SELECT ventas.noIdCliente,clientes.nomCliente, clientes.apellCliente, clientes.direccion, clientes.telefono, ventas.noIdProducto, productos.nomProducto, ventas.cantidad, productos.precioVta, ventas.precioTotal FROM ventas JOIN clientes ON ventas.noIdCliente = clientes.noIdCliente JOIN productos ON ventas.noIdProducto = productos.noIdProducto WHERE ventas.noFactura = ?',
+    cursorObj.execute('SELECT ventas.noIdCliente, clientes.nomCliente, clientes.apellCliente, clientes.direccion, clientes.telefono, ventas.noIdProducto, productos.nomProducto, ventas.cantidad, productos.precioVta, ventas.precioTotal FROM ventas JOIN clientes ON ventas.noIdCliente = clientes.noIdCliente JOIN productos ON ventas.noIdProducto = productos.noIdProducto WHERE ventas.noFactura = ?',
                       (numFactura,))
     facturaInfo = cursorObj.fetchall()
     
