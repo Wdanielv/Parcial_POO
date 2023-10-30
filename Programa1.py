@@ -342,11 +342,13 @@ def imprimirFactura(con, numFactura):
 
 # Modifica tu función main para incluir la venta y la impresión de facturas
 
+    
+    
 def main():
-    miCon = conexionBD()
+    miCon=conexionBD()
     crearTablaProducto(miCon)
     crearTablaCliente(miCon)
-    crearTablaVentas(miCon)  # Agrega una tabla 'ventas' para registrar las ventas
+    crearTablaVentas(miCon)
     numFactura = 1  # Número de factura (puedes implementar la generación automática)
     
     while True:
@@ -369,12 +371,6 @@ def main():
             break
         else:
             print("Opción no válida.")
-    
-def main():
-    miCon=conexionBD()
-    crearTablaProducto(miCon)
-    crearTablaCliente(miCon)
-    crearTablaVentas(miCon)
     #productoLeido=leerProducto(miCon)
     #crearProducto(miCon,productoLeido)
     #actualizarProducto(miCon)
