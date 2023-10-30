@@ -278,8 +278,7 @@ def venderProducto(con):
         
         # Registrar la venta en la base de datos
         cursorObj.execute
-        ('INSERT INTO ventas (noIdCliente, noIdProducto, cantidad, precioTotal))
-        (VALUES (?, ?, ?, ?)', (noIdCliente, noIdProducto, cantidad, precioTotal)
+        ('INSERT INTO ventas (noIdCliente, noIdProducto, cantidad, precioTotal)) (VALUES (?, ?, ?, ?)', (noIdCliente, noIdProducto, cantidad, precioTotal)
         con.commit()
         
         print("Venta realizada con éxito.")
