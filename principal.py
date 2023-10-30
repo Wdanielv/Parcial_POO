@@ -21,13 +21,13 @@ def crearTablaProductos(con):
     try:
         cursorObj = con.cursor()
         #recorre la BD con el objeto conexion
-        crearTablaProd='''CREATE TABLE IF NOT EXISTS productos(
-        noIdProducto interger NOT NULL,
-        nomProducto text NOT NULL,
-        medida float NOT NULL,
-        fecVencimiento date NOT NULL,
-        precioCpra float NOT NULL,
-        precioVta float NOT NULL,
+        crearTablaProd = '''CREATE TABLE IF NOT EXISTS productos(
+        noIdProducto INTEGER NOT NULL,
+        nomProducto TEXT NOT NULL,
+        medida REAL NOT NULL,
+        fecVencimiento DATE NOT NULL,
+        precioCpra REAL NOT NULL,
+        precioVta REAL NOT NULL,
         PRIMARY KEY(noIdProducto))'''
         cursorObj.execute(crearTablaProd)
         #Se crea la tabla productos mediante la variable crearTablaProd y se ejecuta
@@ -214,96 +214,111 @@ def consultarCliente(con, id_cliente):
 def crearTablaVentas(con):
     try:
         cursorObj = con.cursor()
-        crearTablaVentas = '''CREATE TABLE IF NOT EXISTS ventas(
-            noFactura INTEGER PRIMARY KEY AUTOINCREMENT,
-            noIdCliente INTEGER,
-            noIdProducto INTEGER,
-            cantidadProducto INTEGER,
-            FOREIGN KEY (noIdCliente) REFERENCES clientes(noIdCliente),
-            FOREIGN KEY (noIdProducto) REFERENCES productos(noIdProducto)
-        )'''
-        cursorObj.execute(crearTablaVentas)
+        crearTablaVent = '''CREATE TABLE IF NOT EXISTS ventas(
+        noFactura INTEGER NOT NULL,
+        noIdCliente INTEGER NOT NULL,
+        noIdProducto INTEGER NOT NULL,
+        cantidadProducto INTEGER NOT NULL,
+        PRIMARY KEY(noFactura))'''
+        cursorObj.execute(crearTablaVent)
         con.commit()
-    except Error as e:
-        print(e)
+    except Error:
+        print(Error)
 
-def realizarVenta(con):
+def crearVenta(con):
     try:
         cursorObj = con.cursor()
-        noIdCliente = int(input("Ingrese el número de identificación del cliente: "))
-        noIdProducto = int(input("Ingrese el número de identificación del producto: "))
-        cantidad = int(input("Ingrese la cantidad de productos a vender: "))
 
-        # Asegurémonos de que el producto y el cliente existan
-        cursorObj.execute("SELECT * FROM clientes WHERE noIdCliente = ?", (noIdCliente,))
-        cliente = cursorObj.fetchone()
-        cursorObj.execute("SELECT * FROM productos WHERE noIdProducto = ?", (noIdProducto,))
-        producto = cursorObj.fetchone()
+        noFactura = int(input("\nIngrese el número de factura: "))
+        noIdCliente = int(input("Ingrese la identificación del cliente: "))
+        noIdProducto = int(input("Ingrese la identificación del producto: "))
+        cantidad = int(input("Ingrese la cantidad: "))
 
-        if cliente is not None and producto is not None:
-            cursorObj.execute("INSERT INTO ventas(noIdCliente, noIdProducto, cantidadProducto) VALUES(?, ?, ?)", (noIdCliente, noIdProducto, cantidad))
-            con.commit()
-            print("Venta realizada con éxito.")
-        else:
-            print("Cliente o producto no encontrado. Asegúrate de que los números de identificación sean correctos.")
-    except Error as e:
-        print(e)
+        venta = (noFactura, noIdProducto, noIdCliente, cantidad)
+        cursorObj.execute("INSERT INTO ventas(noFactura, noIdProducto, noIdCliente, cantidadProducto) VALUES(?,?,?,?)", venta)
 
-def imprimirFactura(con, noFactura):
+        con.commit()
+
+        print("\nVenta realizada con éxito.")
+    except Error:
+        print(Error)
+
+def actualizarVenta(con):
     try:
         cursorObj = con.cursor()
-        cursorObj.execute('''SELECT ventas.noFactura, clientes.nomCliente, clientes.apeCliente, 
-                                clientes.dirrecion, clientes.telefono, 
-                                productos.nomProducto, ventas.cantidadProducto, productos.precioVta
-                             FROM ventas
-                             JOIN clientes ON ventas.noIdCliente = clientes.noIdCliente
-                             JOIN productos ON ventas.noIdProducto = productos.noIdProducto
-                             WHERE ventas.noFactura = ?''', (noFactura,))
-        venta = cursorObj.fetchone()
 
-        if venta is not None:
-            noFactura, nomCliente, apeCliente, direccion, telefono, nomProducto, cantidad, precioVta = venta
-            precio_total = cantidad * precio
+        noFactura = int(input("\nIngrese el número de factura que desea actualizar: "))
+        parametro = input("\nIngrese el parámetro que desea cambiar (noIdCliente, noIdProducto, cantidadProducto): ")
+        nuevo_valor = input("\nIngrese el nuevo valor: ")
 
-            print("\n** Factura **")
-            print(f"Número de Factura: {noFactura}")
-            print(f"Nombre del Cliente: {nombreCliente} {apellidoCliente}")
-            print(f"Dirección del Cliente: {dirCliente}")
-            print(f"Teléfono del Cliente: {telefonoCliente}")
-            print("\nDetalle de la Compra:")
-            print(f"Producto: {nomProducto}")
-            print(f"Cantidad: {cantidad}")
-            print(f"Precio Unitario: {precio}")
-            print(f"Precio Total: {precio_total}")
-        else:
-            print("No se encontró la factura con el número especificado.")
-    except Error as e:
-        print(e)
+        actualizacion = f"UPDATE ventas SET {parametro} = ? WHERE noFactura = {noFactura}"
+        cursorObj.execute(actualizacion, (nuevo_valor,))
+
+        con.commit()
+
+        print("\nVenta actualizada con éxito.")
+    except Error:
+        print(Error)
 
 #MODULO FACTURAS
 
-def consultarFactura(con, id_factura):
-    try:
-        cursorObj = con.cursor()
+# Módulo Ventas y Facturación
 
-        id_factura = int(id_factura)
+def vender_producto(con):
+    noFactura = int(input("\nIngrese el número de factura: "))
+    noIdCliente = int(input("Ingrese la identificación del cliente: "))
+    noIdProducto = int(input("Ingrese la identificación del producto: "))
+    cantidad = int(input("Ingrese la cantidad: "))
 
-        # Ejecuta una consulta SQL para seleccionar una factura específica por su ID
-        cursorObj.execute("SELECT * FROM ventas WHERE noFactura = ?", (id_factura,))
-        
-        # Recupera el resultado
-        factura = cursorObj.fetchone()
+    cursorObj = con.cursor()
+    venta = (noFactura, noIdProducto, noIdCliente, cantidad)
+    cursorObj.execute("INSERT INTO ventas(noFactura, noIdProducto, noIdCliente, cantidadProducto) VALUES(?,?,?,?)", venta)
+    con.commit()
 
-        if factura:
-            # Si se encontró la factura, imprime sus detalles
-            print(f"\nInformación de la Factura con número de identificación {id_factura}:")
-            print(f"\n  Número de Identificación del Cliente: {factura[1]}")
-            print(f"  Número de Identificación del Producto: {factura[2]}")
-            print(f"  Cantidad de Productos: {factura[3]}\n")
-        else:
-            print(f"\nNo se encontró una factura con número de identificación {id_factura}.")
-    except Error:
-        print(Error)
+    print("\nVenta realizada con éxito.")
+
+def obtener_informacion_venta(con, noFactura):
+    cursorObj = con.cursor()
+    cursorObj.execute("SELECT noIdCliente, noIdProducto, cantidadProducto FROM ventas WHERE noFactura = ?", (noFactura,))
+    venta = cursorObj.fetchone()
+    return venta
+
+def imprimir_factura(con, noFactura):
+    cursorObj = con.cursor()
+
+    venta = obtener_informacion_venta(con, noFactura)
+
+    if not venta:
+        print(f"\nNo se encontró una venta con número de factura {noFactura}.")
+        return
+
+    noIdCliente, noIdProducto, cantidad = venta
+
+    cursorObj.execute("SELECT nombreCliente, apellidoCliente, dirrecionCliente, telefonoCliente, emailCliente FROM clientes WHERE noIdCliente = ?", (noIdCliente,))
+    cliente = cursorObj.fetchone()
+
+    cursorObj.execute("SELECT nomProducto, precioVta FROM productos WHERE noIdProducto = ?", (noIdProducto,))
+    producto = cursorObj.fetchone()
+
+    if not cliente or not producto:
+        print("\nNo se encontró información completa para imprimir la factura.")
+        return
+
+    nombreCliente, apellidoCliente, dirrecionCliente, telefonoCliente, emailCliente = cliente
+    nomProducto, precioVta = producto
+
+    print("\n***** Factura *****")
+    print(f"Número de factura: {noFactura}")
+    print(f"Nombre del cliente: {nombreCliente}")
+    print(f"Apellido del cliente: {apellidoCliente}")
+    print(f"Dirección del cliente: {dirrecionCliente}")
+    print(f"Teléfono del cliente: {telefonoCliente}")
+    #print(f"Email del cliente: {emailCliente}")
+    print("\nDetalle de la factura:")
+    print(f"Producto: {nomProducto}")
+    print(f"Cantidad: {cantidad}")
+    print(f"Precio unitario: {precioVta}")
+    print(f"Precio total: {cantidad * precioVta}")
 
 #PRESENTACION Y MENÚS
 
@@ -355,52 +370,51 @@ def menu_principal(con):
             input("\nPresione Enter para continuar...")
 
 def menu_ventas(con):
-    con=conexionBD()
     while True:
         print("\nMenú Ventas:")
         print("\n 1. Iniciar Venta")
         print(" 2. Modificar Venta")
         print(" 3. Volver al Menú Principal")
-        
-        opcion = input("\nSeleccione una opción (1/2/3): ")
-        
+
+        opcion = input("\nSeleccione una opción (1/2/3):")
+
         if opcion == "1":
-            # Llama el método para iniciar una venta
-            realizarVenta(con)
+            crearVenta(con)
         elif opcion == "2":
-            # Llama el método para modificar una venta
             actualizarVenta(con)
         elif opcion == "3":
             print("\nVolviendo al Menú Principal...")
-            menu_principal(con)
             break
         else:
             print("\nOpción no válida. Por favor, seleccione una opción válida.")
             input("\nPresione Enter para continuar...")
 
+
+# Menú Facturación
+
 def menu_facturas(con):
-    con=conexionBD()
     while True:
         print("\nMenú Facturación:")
         print("\n 1. Imprimir Factura")
         print(" 2. Enviar Factura vía Correo Electrónico")
         print(" 3. Volver al Menú Principal")
-        
-        opcion = input("\nSeleccione una opción (1/2/3): ")
-        
+
+        opcion = input("\nSeleccione una opción (1/2/3):")
+
         if opcion == "1":
-            # llama el método para imprimir una factura
-            consultarFactura(con, id_factura = input("\n  Ingrese el número de identificación\n  de la factura que quiere consultar: "))
+            noFactura = int(input("\nIngrese el número de factura que desea imprimir: "))
+            imprimir_factura(con, noFactura)
         elif opcion == "2":
             print("\nEstamos trabajando en la opción de enviar factura por correo electrónico.")
             input("\nPresione Enter para volver al Menú Facturación...")
         elif opcion == "3":
             print("\nVolviendo al Menú Principal...")
-            menu_principal(con)
             break
         else:
             print("\nOpción no válida. Por favor, seleccione una opción válida.")
             input("\nPresione Enter para continuar...")
+
+
 
 def menu_clientes(con):
     con=conexionBD()
@@ -462,7 +476,7 @@ def menu_productos(con):
 #PROGRAMA PRINCIPAL
 
 def main():
-    con=conexionBD()
+    con = conexionBD()
     crearTablaProductos(con)
     crearTablaClientes(con)
     crearTablaVentas(con)
